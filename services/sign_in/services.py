@@ -16,10 +16,11 @@ class SignInService:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
         payload_data = {
-            "user_id": user.id,
+            "user_id": str(user.id),
+            "email": user.email,
             "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
         }
-        secret_key = os.getenv("JWT_SECRET_KEY", "mysecretkey")
+        secret_key = os.getenv("JWT_SECRET")
         token = jwt.encode(payload_data, secret_key, algorithm="HS256")
 
         return SignInResponse(message="Login successful", token=token)

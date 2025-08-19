@@ -13,7 +13,7 @@ class SignUpRequest(BaseModel):
 
 class SignUpResponse(BaseModel):
     message: str
-    user_id: int
+    user_id: str
 
 
 class SignInRequest(BaseModel):
@@ -78,8 +78,17 @@ class ScoreResponse(BaseModel):
     explanation: ScoreExplanation
 
 
+class MerchantProfileRequest(BaseModel):
+    dba: Optional[str] = None
+    business_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    zip_code: Optional[str] = None
+    contact_name: Optional[str] = None
+    contact_title: Optional[str] = None
+
+
 class MerchantOnboardRequest(BaseModel):
-    name: str
     legal_entity: Optional[str] = None
     industry: str
     mid: Optional[str] = None
@@ -87,24 +96,13 @@ class MerchantOnboardRequest(BaseModel):
     mcc: Optional[str] = None
     ein: Optional[str] = None
     website: Optional[str] = None
-    # minimal signals for initial score (can be enriched later)
-    fico_score: Optional[int] = Field(None, ge=300, le=850)
-    fraud_score: Optional[float] = Field(0.0, ge=0.0, le=1.0)
-    bank_behavior: Optional[BankBehavior] = None
-    keywords: List[str] = field(default_factory=list)
+    business_profile: Optional[MerchantProfileRequest] = None
 
 
 class MerchantResponse(BaseModel):
-    id: str
-    name: str
-    industry: str
-    mid: Optional[str] = None
-    bin: Optional[str] = None
-    mcc: Optional[str] = None
-    score: Optional[int] = None
-    tier: Optional[str] = None
-    decision: Optional[str] = None
-    risk_tags: List[str] = field(default_factory=list)
+    message:str
+    merchant_id: str
+    merchant_profile: str
 
 
 class ExperianWebhook(BaseModel):
