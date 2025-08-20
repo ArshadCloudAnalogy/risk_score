@@ -1,6 +1,6 @@
 from models.schema import (
     MerchantProfileDAO,
-    ScoreSummary, MerchantResponseDAO,
+    ScoreSummary, MerchantResponseDAO, UserResponse,
 )
 from typing import Optional, List
 from datetime import datetime
@@ -54,6 +54,7 @@ class MerchantService:
             mcc=merchant.mcc,
             ein=merchant.ein,
             website=merchant.website,
+            user_details=UserResponse.from_orm(user),
             profile=(
                 MerchantProfileDAO.model_validate(merchant.profile)
                 if merchant.profile
@@ -65,13 +66,16 @@ class MerchantService:
 
     @staticmethod
     def list_merchants_response(db_session, user: User, limit: int = 100, offset: int = 0) -> List[MerchantResponseDAO]:
+
+        if not user.role in ["admin", "super_admin"]:
+            raise HTTPException(detail="You are not authorised to perform this action", status_code=401)
+
         merchants: List[MerchantDB] = (
             db_session.query(MerchantDB)
             .options(
                 joinedload(MerchantDB.profile),
                 selectinload(MerchantDB.scores),
             )
-            .filter(MerchantDB.user_id == user.id)
             .order_by(MerchantDB.created_at.desc())
             .offset(offset)
             .limit(limit)
@@ -88,7 +92,6 @@ class MerchantService:
             if m.scores:
                 latest_row = max(m.scores, key=lambda s: s.created_at or datetime.min)
                 latest = _to_score_summary_list(latest_row)
-
             resp.append(
                 MerchantResponseDAO(
                     legal_entity=m.legal_entity,
@@ -100,6 +103,7 @@ class MerchantService:
                     mcc=m.mcc,
                     ein=m.ein,
                     website=m.website,
+                    user_details=UserResponse.from_orm(m.user),
                     profile=(
                         MerchantProfileDAO.model_validate(m.profile)
                         if m.profile

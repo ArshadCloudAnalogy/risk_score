@@ -18,6 +18,9 @@ from services.calculation.services import Calculation
 class SignUpService:
     @staticmethod
     def register_user(payload: SignUpRequest, db_session: Session) -> SignUpResponse:
+        isExist = db_session.query(User).filter(User.email == payload.email).one_or_none()
+        if isExist:
+            raise HTTPException(detail="You're already register please try login.", status_code=403)
         hashed_password = bcrypt.hash(payload.password)
         new_user = User(first_name=payload.first_name, last_name=payload.last_name,
                         email=payload.email, password=hashed_password)
@@ -27,7 +30,9 @@ class SignUpService:
         return SignUpResponse(message="User registered successfully", user_id=new_user.id)
 
     @staticmethod
-    def add_merchant(payload: MerchantOnboardRequest, user: User, db_session: Session) -> MerchantResponse:
+    def add_merchant(payload: MerchantOnboardRequest, user: User,
+                     db_session: Session) -> MerchantResponse | HTTPException:
+
         merchant = db_session.query(MerchantDB).filter(
             MerchantDB.business_name == payload.business_profile.business_name,
             MerchantDB.industry == payload.industry).one_or_none()

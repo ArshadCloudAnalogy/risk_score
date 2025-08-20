@@ -4,12 +4,14 @@ from routers.sign_in.routers import router as signin_router
 from routers.forgot_password.routers import router as forgot_password_router
 from routers.reset_password.routers import router as reset_password_router
 from routers.merchant.routers import router as merchant_router
+from routers.profile.routers import router as profile_routers
 
 api_router = APIRouter()
 api_router.include_router(signup_router)
 api_router.include_router(signin_router)
 api_router.include_router(forgot_password_router)
 api_router.include_router(reset_password_router)
+api_router.include_router(profile_routers)
 
 # merchants
 api_router.include_router(merchant_router)

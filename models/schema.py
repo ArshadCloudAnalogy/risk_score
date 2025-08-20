@@ -1,7 +1,25 @@
 from dataclasses import field
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime
+
+
+class APIResponse(BaseModel):
+    message: str
+    status: str  # "success" or "error"
+    data: Optional[Any] = None
+
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    role: str
+    phone: Optional[str] = None
+    first_name: str
+    last_name: str
+
+    class Config:
+        from_attributes = True
 
 
 class SignUpRequest(BaseModel):
@@ -28,6 +46,7 @@ class SignInRequest(BaseModel):
 class SignInResponse(BaseModel):
     message: str
     token: str
+
 
 
 class ForgotPasswordRequest(BaseModel):
@@ -196,5 +215,6 @@ class MerchantResponseDAO(BaseModel):
     # nested
     profile: Optional[MerchantProfileDAO] = None
     latest_score: Optional[ScoreSummary] = None
+    user_details: Optional[UserResponse] = None
 
     model_config = {"from_attributes": True}
