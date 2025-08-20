@@ -1,4 +1,6 @@
-from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey
+from sqlalchemy import (
+    Column, String, Integer,
+    Float, DateTime, ForeignKey, Text)
 from sqlalchemy.orm import relationship
 from connections.db_connection import Base
 from datetime import datetime
@@ -10,12 +12,13 @@ class MerchantDB(Base):
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
     legal_entity = Column(String)
     industry = Column(String)
+    business_name = Column(String, nullable=False)
+    owner_name = Column(String, nullable=True)
     mid = Column(String)
     bin = Column(String)
     mcc = Column(String)
     ein = Column(String)
     website = Column(String)
-    risk_tags = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     update_at = Column(DateTime, default=datetime.utcnow)
     user_id = Column(String, ForeignKey("users.id"), index=True, nullable=False)
@@ -40,11 +43,13 @@ class ScoreEntry(Base):
     __tablename__ = "scores"
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
     merchant_id = Column(String, ForeignKey("merchants.id"), index=True, nullable=False)
-    score = Column(Integer)
-    tier = Column(String)
-    decision = Column(String)
-    risk_tags = Column(String)
-    explanation = Column(String)  # JSON
+    score = Column(Integer, nullable=False)
+    tier = Column(String, nullable=False)
+    decision = Column(String, nullable=False)
+    limit_suggestion = Column(String, nullable=True)
+    risk_tags = Column(Text, nullable=True)  # JSON string list
+    explanation = Column(Text, nullable=True)
+    heat_score = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationship back to Merchant
@@ -84,6 +89,7 @@ class Chargeback(Base):
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
     merchant_id = Column(String, ForeignKey("merchants.id"), index=True, nullable=False)
     chargeback_code = Column(String)
+
     reason = Column(String)
     amount = Column(Float)
     source = Column(String)

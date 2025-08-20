@@ -81,6 +81,8 @@ class ScoreResponse(BaseModel):
 class MerchantProfileRequest(BaseModel):
     dba: Optional[str] = None
     business_address: Optional[str] = None
+    owner_name: str
+    business_name: str
     city: Optional[str] = None
     state: Optional[str] = None
     zip_code: Optional[str] = None
@@ -91,11 +93,22 @@ class MerchantProfileRequest(BaseModel):
 class MerchantOnboardRequest(BaseModel):
     legal_entity: Optional[str] = None
     industry: str
+    fico_score: int
+    self_employed: bool
+    verified_income: str
     mid: Optional[str] = None
     bin: Optional[str] = None
     mcc: Optional[str] = None
     ein: Optional[str] = None
     website: Optional[str] = None
+    fico_score: Optional[int] = Field(None, ge=300, le=850)
+    self_employed: Optional[bool] = None
+    annual_income: Optional[float] = None
+    verified_income: Optional[float] = None
+    bank_behaviour: Optional[BankBehavior] = None
+    device_risk_score: Optional[float] = Field(0, ge=0, le=1)
+    fraud_score: Optional[float] = Field(0, ge=0, le=1)
+    keywords: List[str]
     business_profile: Optional[MerchantProfileRequest] = None
 
 

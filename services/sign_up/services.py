@@ -1,7 +1,10 @@
-from models.schema import SignUpRequest, SignUpResponse, MerchantOnboardRequest, MerchantResponse
+from models.schema import SignUpRequest, SignUpResponse, MerchantOnboardRequest, MerchantResponse, BankBehavior
 from sqlalchemy.orm import Session
-from models.models import User, MerchantDB, MerchantProfile
+from models.models import User, MerchantDB, MerchantProfile, ScoreEntry
 from passlib.hash import bcrypt
+
+from services.calculation.services import Calculation
+import json
 
 
 class SignUpService:
@@ -17,8 +20,17 @@ class SignUpService:
 
     @staticmethod
     def add_merchant(payload: MerchantOnboardRequest, user: User, db_session: Session) -> MerchantResponse:
+        merchant = db_session.query(MerchantDB).filter(
+            MerchantDB.business_name == payload.business_profile.business_name,
+            MerchantDB.industry == payload.industry).one_or_none()
+        if merchant:
+            return MerchantResponse(message="Merchant exists",
+                                    merchant_id=merchant.id,
+                                    merchant_profile=merchant.profile.id)
         merchant = MerchantDB(
             user_id=user.id,
+            business_name=payload.business_profile.business_name,
+            owner_name=payload.business_profile.owner_name,
             legal_entity=payload.legal_entity,
             industry=payload.industry,
             mid=payload.mid,
@@ -27,9 +39,37 @@ class SignUpService:
             ein=payload.ein,
             website=payload.website,
         )
+
+        # Gates
+        g1 = Calculation.gate_age_income(bool(payload.self_employed), float(payload.annual_income or 0),
+                                         payload.verified_income)
+        g2 = Calculation.gate_identity_fraud(float(payload.device_risk_score or 0), float(payload.fraud_score or 0))
+        g3 = Calculation.gate_creditworthiness(payload.fico_score)
+        bb = BankBehavior(**(payload.bank_behaviour.dict() if payload.bank_behaviour else {}))
+        g4 = Calculation.gate_bank_behaviour(bb)
+        ind_pts, ind_tags, heat = Calculation.industry_rules(payload.industry, payload.keywords)
+
+        result = Calculation.combine_gates(g1, g2, g3, g4, ind_pts, ind_tags)
+
+        result["limit_suggestion"] = "$3,000" if result["tier"] == "Warm" else "$5,000" if result[
+                                                                                               "tier"] == "Hot" else "$0"
         db_session.add(merchant)
         db_session.commit()
         db_session.refresh(merchant)
+
+        snap = ScoreEntry(
+            merchant_id=merchant.id,
+            score=result["score"],
+            tier=result["tier"],
+            decision=result["decision"],
+            limit_suggestion=result["limit_suggestion"],
+            risk_tags=json.dumps(result["risk_tags"]),
+            explanation=json.dumps(result["explanation"]),
+            heat_score=heat,
+        )
+        db_session.add(snap)
+        db_session.commit()
+
         merchant_profile = MerchantProfile(
             merchant_id=merchant.id,
             dba=payload.business_profile.dba,
