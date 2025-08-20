@@ -1,3 +1,5 @@
+from enum import Enum
+
 from sqlalchemy import (
     Column, String, Integer,
     Float, DateTime, ForeignKey, Text)
@@ -5,6 +7,12 @@ from sqlalchemy.orm import relationship
 from connections.db_connection import Base
 from datetime import datetime
 from uuid import uuid4
+
+
+class Role(Enum):
+    USER = "user"
+    SUPER_ADMIN = "super_admin"
+    ADMIN = "admin"
 
 
 class MerchantDB(Base):
@@ -79,6 +87,7 @@ class User(Base):
     reset_token = Column(String, nullable=True)
     reset_token_expiry = Column(DateTime, nullable=True)
     phone = Column(String)
+    role = Column(String, nullable=False, default=Role.USER.value)
     created_at = Column(DateTime, default=datetime.utcnow)
     update_at = Column(DateTime, default=datetime.utcnow)
     merchant = relationship("MerchantDB", back_populates="user", cascade="all, delete-orphan")
