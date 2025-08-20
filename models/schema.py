@@ -15,6 +15,7 @@ class SignUpResponse(BaseModel):
     message: str
     user_id: str
 
+
 class SignUpErrorResponse(BaseModel):
     message: str
 
@@ -116,7 +117,7 @@ class MerchantOnboardRequest(BaseModel):
 
 
 class MerchantResponse(BaseModel):
-    message:str
+    message: str
     merchant_id: str
     merchant_profile: str
 
@@ -181,8 +182,7 @@ class MerchantProfileDAO(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class MerchantResponse(BaseModel):
-    id: str
+class MerchantResponseDAO(BaseModel):
     legal_entity: Optional[str] = None
     industry: str
     business_name: Optional[str] = None
@@ -192,8 +192,6 @@ class MerchantResponse(BaseModel):
     mcc: Optional[str] = None
     ein: Optional[str] = None
     website: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
 
     # nested
     profile: Optional[MerchantProfileDAO] = None

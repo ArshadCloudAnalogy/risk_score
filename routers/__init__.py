@@ -11,4 +11,5 @@ api_router.include_router(signin_router)
 api_router.include_router(forgot_password_router)
 api_router.include_router(reset_password_router)
 
+# merchants
 api_router.include_router(merchant_router)

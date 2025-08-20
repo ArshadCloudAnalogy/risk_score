@@ -1,17 +1,15 @@
 from models.schema import (
     MerchantProfileDAO,
-    MerchantResponse,
-    ScoreSummary,
+    ScoreSummary, MerchantResponseDAO,
 )
 from typing import Optional, List
-from pydantic import BaseModel, Field
 from datetime import datetime
 from sqlalchemy.orm import Session
 from models.models import MerchantDB, User
 from sqlalchemy.orm import joinedload, selectinload
 from fastapi import HTTPException, status
-import json
 from utils.merchant.common import _as_list, _to_score_summary_list
+
 
 class MerchantService:
 
@@ -46,8 +44,7 @@ class MerchantService:
                 created_at=latest_row.created_at,
             )
 
-        resp = MerchantResponse(
-            id=merchant.id,
+        resp = MerchantResponseDAO(
             legal_entity=merchant.legal_entity,
             industry=merchant.industry,
             business_name=merchant.business_name,
@@ -57,8 +54,6 @@ class MerchantService:
             mcc=merchant.mcc,
             ein=merchant.ein,
             website=merchant.website,
-            created_at=merchant.created_at,
-            updated_at=merchant.update_at,  # or merchant.updated_at if you rename
             profile=(
                 MerchantProfileDAO.model_validate(merchant.profile)
                 if merchant.profile
@@ -69,19 +64,14 @@ class MerchantService:
         return resp
 
     @staticmethod
-    def list_merchants_response(
-        db_session,
-        user_id: str,
-        limit: int = 100,
-        offset: int = 0,
-    ) -> List[MerchantResponse]:
+    def list_merchants_response(db_session, user: User, limit: int = 100, offset: int = 0) -> List[MerchantResponseDAO]:
         merchants: List[MerchantDB] = (
             db_session.query(MerchantDB)
             .options(
                 joinedload(MerchantDB.profile),
                 selectinload(MerchantDB.scores),
             )
-            .filter(MerchantDB.user_id == user_id)
+            .filter(MerchantDB.user_id == user.id)
             .order_by(MerchantDB.created_at.desc())
             .offset(offset)
             .limit(limit)
@@ -92,7 +82,7 @@ class MerchantService:
         if not merchants:
             return []
 
-        resp: List[MerchantResponse] = []
+        resp: List[MerchantResponseDAO] = []
         for m in merchants:
             latest = None
             if m.scores:
@@ -100,8 +90,7 @@ class MerchantService:
                 latest = _to_score_summary_list(latest_row)
 
             resp.append(
-                MerchantResponse(
-                    id=m.id,
+                MerchantResponseDAO(
                     legal_entity=m.legal_entity,
                     industry=m.industry,
                     business_name=m.business_name,
@@ -111,8 +100,6 @@ class MerchantService:
                     mcc=m.mcc,
                     ein=m.ein,
                     website=m.website,
-                    created_at=m.created_at,
-                    updated_at=getattr(m, "updated_at", getattr(m, "update_at", None)),
                     profile=(
                         MerchantProfileDAO.model_validate(m.profile)
                         if m.profile
