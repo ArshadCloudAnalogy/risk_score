@@ -15,6 +15,9 @@ class SignUpResponse(BaseModel):
     message: str
     user_id: str
 
+class SignUpErrorResponse(BaseModel):
+    message: str
+
 
 class SignInRequest(BaseModel):
     email: str
@@ -151,3 +154,49 @@ class ChargebackResponse(BaseModel):
     amount: float
     source: str
     timestamp: datetime
+
+
+class ScoreSummary(BaseModel):
+    score: int
+    tier: str
+    decision: str
+    limit_suggestion: Optional[str] = None
+    risk_tags: List[str] = []
+    explanation: Optional[str] = None
+    heat_score: Optional[int] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class MerchantProfileDAO(BaseModel):
+    dba: Optional[str] = None
+    business_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    zip_code: Optional[str] = None
+    contact_name: Optional[str] = None
+    contact_title: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class MerchantResponse(BaseModel):
+    id: str
+    legal_entity: Optional[str] = None
+    industry: str
+    business_name: Optional[str] = None
+    owner_name: Optional[str] = None
+    mid: Optional[str] = None
+    bin: Optional[str] = None
+    mcc: Optional[str] = None
+    ein: Optional[str] = None
+    website: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    # nested
+    profile: Optional[MerchantProfileDAO] = None
+    latest_score: Optional[ScoreSummary] = None
+
+    model_config = {"from_attributes": True}

@@ -1,10 +1,18 @@
-from models.schema import SignUpRequest, SignUpResponse, MerchantOnboardRequest, MerchantResponse, BankBehavior
-from sqlalchemy.orm import Session
-from models.models import User, MerchantDB, MerchantProfile, ScoreEntry
-from passlib.hash import bcrypt
-
-from services.calculation.services import Calculation
 import json
+
+from fastapi import HTTPException
+from passlib.hash import bcrypt
+from sqlalchemy.orm import Session
+
+from models.models import MerchantDB, MerchantProfile, ScoreEntry, User
+from models.schema import (
+    BankBehavior,
+    MerchantOnboardRequest,
+    MerchantResponse,
+    SignUpRequest,
+    SignUpResponse,
+)
+from services.calculation.services import Calculation
 
 
 class SignUpService:
@@ -86,3 +94,33 @@ class SignUpService:
         return MerchantResponse(message="Successfully Added the merchant details",
                                 merchant_id=merchant.id,
                                 merchant_profile=merchant_profile.id)
+
+    @staticmethod
+    def register_root(payload: SignUpRequest, db_session: Session) -> SignUpResponse:
+        is_user = db_session.query(User).filter_by(role="super_admin").first()
+        if is_user:
+            raise HTTPException(status_code=403, detail="You are already a super admin")
+
+        hashed_password = bcrypt.hash(payload.password)
+        new_user = User(first_name=payload.first_name, last_name=payload.last_name,
+                        email=payload.email, password=hashed_password, role="super_admin")
+        db_session.add(new_user)
+        db_session.commit()
+        db_session.refresh(new_user)
+
+        return SignUpResponse(message="User registered successfully", user_id=new_user.id)
+
+    @staticmethod
+    def register_admin(payload: SignUpRequest, user: User, db_session: Session) -> SignUpResponse:
+
+        if not user.role in ["super_admin", "admin"]:
+            raise HTTPException(status_code=403, detail="You are not a super admin")
+
+        hashed_password = bcrypt.hash(payload.password)
+        new_user = User(first_name=payload.first_name, last_name=payload.last_name,
+                        email=payload.email, password=hashed_password, role="admin")
+        db_session.add(new_user)
+        db_session.commit()
+        db_session.refresh(new_user)
+
+        return SignUpResponse(message="User registered successfully", user_id=new_user.id)
