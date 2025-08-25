@@ -1,6 +1,6 @@
 from models.schema import (
     MerchantProfileDAO,
-    ScoreSummary, MerchantResponseDAO, UserResponse,
+    ScoreSummary, MerchantResponseDAO, UserResponse, UserMerchantResponse,
 )
 from typing import Optional, List
 from datetime import datetime
@@ -98,12 +98,7 @@ class MerchantService:
                     industry=m.industry,
                     business_name=m.business_name,
                     owner_name=m.owner_name,
-                    mid=m.mid,
-                    bin=m.bin,
-                    mcc=m.mcc,
-                    ein=m.ein,
-                    website=m.website,
-                    user_details=UserResponse.from_orm(m.user),
+                    user_details=UserMerchantResponse.from_orm(m.user),
                     profile=(
                         MerchantProfileDAO.model_validate(m.profile)
                         if m.profile

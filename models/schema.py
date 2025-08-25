@@ -21,6 +21,14 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class UserMerchantResponse(BaseModel):
+    email: str
+    first_name: str
+    last_name: str
+
+    class Config:
+        from_attributes = True
+
 
 class SignUpRequest(BaseModel):
     first_name: str = Field(..., min_length=3)
@@ -190,7 +198,6 @@ class ScoreSummary(BaseModel):
 
 
 class MerchantProfileDAO(BaseModel):
-    dba: Optional[str] = None
     business_address: Optional[str] = None
     city: Optional[str] = None
     state: Optional[str] = None
@@ -206,15 +213,10 @@ class MerchantResponseDAO(BaseModel):
     industry: str
     business_name: Optional[str] = None
     owner_name: Optional[str] = None
-    mid: Optional[str] = None
-    bin: Optional[str] = None
-    mcc: Optional[str] = None
-    ein: Optional[str] = None
-    website: Optional[str] = None
 
     # nested
     profile: Optional[MerchantProfileDAO] = None
     latest_score: Optional[ScoreSummary] = None
-    user_details: Optional[UserResponse] = None
+    user_details: Optional[UserMerchantResponse] = None
 
     model_config = {"from_attributes": True}
