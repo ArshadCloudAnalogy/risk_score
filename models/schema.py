@@ -209,6 +209,7 @@ class MerchantProfileDAO(BaseModel):
 
 
 class MerchantResponseDAO(BaseModel):
+    id: str = None
     legal_entity: Optional[str] = None
     industry: str
     business_name: Optional[str] = None
