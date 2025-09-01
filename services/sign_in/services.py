@@ -20,7 +20,7 @@ class SignInService:
             "email": user.email,
             "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
         }
-        secret_key = os.getenv("JWT_SECRET", "secret_key")
+        secret_key = os.getenv("JWT_SECRET", "secret")
         token = jwt.encode(payload_data, secret_key, algorithm="HS256")
 
         return SignInResponse(message="Login successful", token=token)

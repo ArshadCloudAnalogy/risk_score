@@ -183,12 +183,17 @@ class MerchantService:
     #         data={"merchant_id": merchant_id}
     #     )
 
-
     @staticmethod
     def delete_merchant(merchant_id: str, user: User, db_session: Session):
+        if user.role not in ["admin", "super_admin"]:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="You are not authorised to perform this action"
+            )
+
         merchant: MerchantDB | None = (
             db_session.query(MerchantDB)
-            .filter(MerchantDB.id == merchant_id, MerchantDB.user_id == user.id)
+            .filter(MerchantDB.id == merchant_id)
             .one_or_none()
         )
 

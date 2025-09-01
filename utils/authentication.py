@@ -9,7 +9,7 @@ from connections.db_connection import SessionLocal
 
 db_session = SessionLocal()
 
-SECRET_KEY = os.getenv("JWT_SECRET", "secret_key")
+SECRET_KEY = os.getenv("JWT_SECRET", "secret")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 ERROR_EMAIL_PASSWORD_IS_INCORRECT = "Please login with this correct email and password instead."
