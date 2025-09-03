@@ -36,6 +36,7 @@ class MerchantDB(Base):
     user = relationship("User", back_populates="merchant")
     webhooks = relationship("WebhookLog", back_populates="merchant", cascade="all, delete-orphan")
     chargebacks = relationship("Chargeback", back_populates="merchant", cascade="all, delete-orphan")
+    bank_connections = relationship("BankConnection", back_populates="merchant", cascade="all, delete-orphan")
 
     # Onboarding form (one-to-one sections)
     profile = relationship("MerchantProfile", back_populates="merchant", uselist=False, cascade="all, delete-orphan")
@@ -87,6 +88,9 @@ class User(Base):
     reset_token = Column(String, nullable=True)
     reset_token_expiry = Column(DateTime, nullable=True)
     phone = Column(String)
+    bio = Column(String, nullable=True)
+    location = Column(String, nullable=True)
+    profile_image = Column(String, nullable=True)
     role = Column(String, nullable=False, default=Role.USER.value)
     created_at = Column(DateTime, default=datetime.utcnow)
     update_at = Column(DateTime, default=datetime.utcnow)
