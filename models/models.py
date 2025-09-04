@@ -36,7 +36,7 @@ class MerchantDB(Base):
     user = relationship("User", back_populates="merchant")
     webhooks = relationship("WebhookLog", back_populates="merchant", cascade="all, delete-orphan")
     chargebacks = relationship("Chargeback", back_populates="merchant", cascade="all, delete-orphan")
-    bank_connections = relationship("BankConnection", back_populates="merchant", cascade="all, delete-orphan")
+    # bank_connections = relationship("BankConnection", back_populates="merchant", cascade="all, delete-orphan")
 
     # Onboarding form (one-to-one sections)
     profile = relationship("MerchantProfile", back_populates="merchant", uselist=False, cascade="all, delete-orphan")
