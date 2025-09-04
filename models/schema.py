@@ -6,20 +6,31 @@ from datetime import datetime
 
 class APIResponse(BaseModel):
     message: str
-    status: str  # "success" or "error"
+    status: str 
     data: Optional[Any] = None
 
+class ProfessionalDetailsResponse(BaseModel):
+    company: Optional[str] = None
+    department: Optional[str] = None
+    join_date: Optional[datetime] = None
+    bio: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 class UserResponse(BaseModel):
     id: str
     email: str
     role: str
     phone: Optional[str] = None
+    location: Optional[str] = None
+    profile_image: Optional[str] = None
     first_name: str
     last_name: str
-
+    professional_details: Optional[ProfessionalDetailsResponse] = None
     class Config:
         from_attributes = True
+
 
 class UserMerchantResponse(BaseModel):
     email: str
@@ -221,3 +232,18 @@ class MerchantResponseDAO(BaseModel):
     user_details: Optional[UserMerchantResponse] = None
 
     model_config = {"from_attributes": True}
+
+class MerchantListResponse(BaseModel):
+    id: str
+    name: str
+    email: str
+    status: str
+    riskScore: Optional[float] = 0.0
+    revenue: Optional[str] = "0"
+    transactions: Optional[int] = 0
+    joinDate: str
+    category: Optional[str] = None
+    country: Optional[str] = None
+
+    class Config:
+        from_attributes = True
