@@ -4,6 +4,7 @@ from routers import api_router
 import time
 import logging
 from mangum import Mangum
+from routers.openbanking import router as openbanking_router
 
 app = FastAPI(title="RiskCore API", version="1.0.0",
               docs_url="/swagger/_docs")
@@ -41,5 +42,6 @@ def root():
 
 # Routers
 app.include_router(api_router)
+app.include_router(openbanking_router)
 
 handler = Mangum(app)
