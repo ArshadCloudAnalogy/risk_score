@@ -114,17 +114,19 @@ class Calculation:
         if bb.nsf_fees >= 2: points -= 10; tags.append("nsf_events")
         return GateOutput(points, tags, details)
 
-    @staticmethod
     def industry_rules(industry: str, keywords: list[str]) -> Tuple[int, list[str], int]:
         # Returns (industry_points, tags, heat_penalty)
         tags: List[str] = []
-        base_penalty = 0
+        base_score = 10   # start with high score = safe
         ind = (industry or "").lower().strip().replace(" ", "_")
-        kw = {k.lower() for k in keywords or []}
+        kw = {k.lower() for k in (keywords or [])}
+
         if ind in HIGH_RISK or len(HIGH_RISK & kw) > 0:
             tags.append(ind if ind in HIGH_RISK else "high_risk_keyword")
-            base_penalty = -9
-        return (base_penalty, tags, abs(base_penalty) * 10)  # heat score proxy
+            base_score = 1   # lower score = more risk
+
+        # heat_penalty now directly proportional to risk
+        return (base_score, tags, (10 - base_score) * 10)
 
     @staticmethod
     def combine_gates(g1: GateOutput, g2: GateOutput, g3: GateOutput, g4: GateOutput,

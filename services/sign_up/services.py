@@ -64,8 +64,7 @@ class SignUpService:
 
         result = Calculation.combine_gates(g1, g2, g3, g4, ind_pts, ind_tags)
 
-        result["limit_suggestion"] = "$3,000" if result["tier"] == "Warm" else "$5,000" if result[
-                                                                                               "tier"] == "Hot" else "$0"
+        result["limit_suggestion"] = "$3,000" if result["tier"] == "Warm" else "$5,000" if result["tier"] == "Hot" else "$0"
         db_session.add(merchant)
         db_session.commit()
         db_session.refresh(merchant)

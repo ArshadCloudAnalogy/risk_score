@@ -99,7 +99,7 @@ class MerchantService:
             resp.append(
                 MerchantListResponse(
                     id=m.id,
-                    name=m.business_name,
+                    name=m.legal_entity,
                     email=m.user.email if m.user else "",
                     status="active",   # TODO: derive from your business rules
                     riskScore=risk_score,
