@@ -19,6 +19,7 @@ class MerchantDB(Base):
     __tablename__ = "merchants"
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
     legal_entity = Column(String)
+    type_of_merchant = Column(String, server_default="moderate", nullable=False)
     industry = Column(String)
     business_name = Column(String, nullable=False)
     owner_name = Column(String, nullable=True)
@@ -114,6 +115,7 @@ class MerchantProfile(Base):
     __tablename__ = "merchant_profiles"
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
     merchant_id = Column(String, ForeignKey("merchants.id"), index=True, nullable=False)
+    type_of_merchant = Column(String, server_default="moderate", nullable=False)
     dba = Column(String)
     business_address = Column(String)
     city = Column(String)

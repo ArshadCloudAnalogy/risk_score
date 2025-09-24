@@ -72,11 +72,9 @@ class MerchantService:
 
     @staticmethod
     def list_merchants_response(db_session, user: User, limit: int = 100, offset: int = 0) -> List[MerchantListResponse]:
-
         if user.role not in ["admin", "super_admin"]:
-            raise HTTPException(detail="You are not authorised to perform this action", status_code=401)
-
-        merchants: List[MerchantDB] = (
+            raise HTTPException(detail="You are not authorised to perform this action", status_code=403)
+        query = (
             db_session.query(MerchantDB)
             .options(
                 joinedload(MerchantDB.profile),
@@ -84,12 +82,12 @@ class MerchantService:
                 joinedload(MerchantDB.user),
             )
             .order_by(MerchantDB.created_at.desc())
-            .offset(offset)
-            .limit(limit)
-            .all()
         )
 
-        resp: List[MerchantListResponse] = []
+        if user.role == "admin":
+            query = query.filter(MerchantDB.user_id == user.id)
+        merchants: List[MerchantDB] = query.offset(offset).limit(limit).all()
+        resp: List[MerchantListResponse] = [] 
         for m in merchants:
             risk_score = 0.0
             if m.scores:
@@ -107,7 +105,7 @@ class MerchantService:
                     transactions=0,    # TODO: derive count from transactions table if exists
                     joinDate=m.created_at.strftime("%Y-%m-%d"),
                     category=m.industry,
-                    country=m.profile.state if m.profile else None  # or use country field if available
+                    country=m.profile.state if m.profile else None
                 )
             )
         return resp
@@ -188,7 +186,7 @@ class MerchantService:
     def delete_merchant(merchant_id: str, user: User, db_session: Session):
         if user.role not in ["admin", "super_admin"]:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_403_FORBIDDEN,
                 detail="You are not authorised to perform this action"
             )
 
