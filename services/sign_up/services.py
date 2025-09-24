@@ -43,6 +43,7 @@ class SignUpService:
         merchant = MerchantDB(
             user_id=user.id,
             business_name=payload.business_profile.business_name,
+            type_of_merchant=payload.type_of_merchant,
             owner_name=payload.business_profile.owner_name,
             legal_entity=payload.legal_entity,
             industry=payload.industry,
@@ -85,6 +86,7 @@ class SignUpService:
         merchant_profile = MerchantProfile(
             merchant_id=merchant.id,
             dba=payload.business_profile.dba,
+            type_of_merchant=payload.type_of_merchant,
             business_address=payload.business_profile.business_address,
             city=payload.business_profile.city,
             state=payload.business_profile.state,

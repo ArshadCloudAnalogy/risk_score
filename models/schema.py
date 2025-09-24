@@ -134,6 +134,7 @@ class MerchantProfileRequest(BaseModel):
 
 class MerchantOnboardRequest(BaseModel):
     legal_entity: Optional[str] = None
+    type_of_merchant: str
     industry: str
     fico_score: int
     self_employed: bool
