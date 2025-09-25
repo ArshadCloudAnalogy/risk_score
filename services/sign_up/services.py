@@ -119,12 +119,18 @@ class SignUpService:
     @staticmethod
     def register_admin(payload: SignUpRequest, user: User, db_session: Session) -> SignUpResponse:
 
-        if not user.role in ["super_admin", "admin"]:
+        if user.role != "super_admin":
             raise HTTPException(status_code=403, detail="You are not a super admin")
 
         hashed_password = bcrypt.hash(payload.password)
-        new_user = User(first_name=payload.first_name, last_name=payload.last_name,
-                        email=payload.email, password=hashed_password, role="admin")
+        new_user = User(
+            first_name=payload.first_name,
+            last_name=payload.last_name,
+            email=payload.email,
+            password=hashed_password,
+            role="admin",
+            created_by=user.id   # <-- track creator
+        )
         db_session.add(new_user)
         db_session.commit()
         db_session.refresh(new_user)
