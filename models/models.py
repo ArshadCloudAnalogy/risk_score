@@ -77,7 +77,6 @@ class WebhookLog(Base):
     # Relationship back to Merchant
     merchant = relationship("MerchantDB", back_populates="webhooks")
 
-
 class User(Base):
     __tablename__ = "users"
 
@@ -93,10 +92,11 @@ class User(Base):
     location = Column(String, nullable=True)
     profile_image = Column(String, nullable=True)
     role = Column(String, nullable=False, default=Role.USER.value)
+    created_by = Column(String, ForeignKey("users.id"), nullable=True)   # <-- NEW FIELD
     created_at = Column(DateTime, default=datetime.utcnow)
     update_at = Column(DateTime, default=datetime.utcnow)
-    merchant = relationship("MerchantDB", back_populates="user", cascade="all, delete-orphan")
 
+    merchant = relationship("MerchantDB", back_populates="user", cascade="all, delete-orphan")
 
 class Chargeback(Base):
     __tablename__ = "chargebacks"

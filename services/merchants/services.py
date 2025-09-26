@@ -50,6 +50,7 @@ class MerchantService:
 
         resp = MerchantResponseDAO(
             id=merchant.id,
+            type_of_merchent=merchant.type_of_merchant,
             legal_entity=merchant.legal_entity,
             industry=merchant.industry,
             business_name=merchant.business_name,
@@ -97,6 +98,7 @@ class MerchantService:
             resp.append(
                 MerchantListResponse(
                     id=m.id,
+                    type_of_merchent=m.type_of_merchant,
                     name=m.legal_entity,
                     email=m.user.email if m.user else "",
                     status="active",   # TODO: derive from your business rules

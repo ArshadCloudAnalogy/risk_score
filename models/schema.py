@@ -226,7 +226,7 @@ class MerchantResponseDAO(BaseModel):
     industry: str
     business_name: Optional[str] = None
     owner_name: Optional[str] = None
-
+    type_of_merchent: str
     # nested
     profile: Optional[MerchantProfileDAO] = None
     latest_score: Optional[ScoreSummary] = None
@@ -239,6 +239,7 @@ class MerchantListResponse(BaseModel):
     name: str
     email: str
     status: str
+    type_of_merchent: str
     riskScore: Optional[float] = 0.0
     revenue: Optional[str] = "0"
     transactions: Optional[int] = 0
