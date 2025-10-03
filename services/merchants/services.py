@@ -212,3 +212,83 @@ class MerchantService:
             status="success",
             data={"merchant_id": merchant_id}
         )
+        
+    def _create_or_update_signatories(db_session: Session, merchant: MerchantDB, signatories_payload: Optional[List[SignatoryRequest]]):
+        if not signatories_payload:
+            return
+        # remove existing and re-add (simple approach)
+        db_session.query(Signatory).filter(Signatory.merchant_id == merchant.id).delete()
+        for s in signatories_payload:
+            sign = Signatory(
+                merchant_id=merchant.id,
+                first_name=s.first_name,
+                middle_name=s.middle_name,
+                last_name=s.last_name,
+                date_of_birth=s.date_of_birth,
+                residential_address=s.residential_address,
+                phone_mobile=s.phone_mobile,
+                phone_business=s.phone_business,
+                email=s.email,
+                ssn_or_national_id=s.ssn_or_national_id,
+                gov_id_front=s.gov_id_front,
+                gov_id_back=s.gov_id_back,
+                ownership_percent=s.ownership_percent,
+                digital_signature=s.digital_signature,
+            )
+            db_session.add(sign)
+
+    def _create_or_update_ibo(db_session: Session, merchant: MerchantDB, ibo_payload: Optional[IboEntityRequest]):
+        if not ibo_payload:
+            return
+        existing = db_session.query(IboEntity).filter(IboEntity.merchant_id == merchant.id).one_or_none()
+        if existing:
+            for k, v in ibo_payload.dict(exclude_unset=True).items():
+                setattr(existing, k, v)
+            db_session.add(existing)
+        else:
+            ibo = IboEntity(
+                merchant_id=merchant.id,
+                legal_business_name=ibo_payload.legal_business_name,
+                dba=ibo_payload.dba,
+                business_type=ibo_payload.business_type,
+                business_address=ibo_payload.business_address,
+                phone=ibo_payload.phone,
+                website=ibo_payload.website,
+                ein=ibo_payload.ein,
+                bank_name=ibo_payload.bank_name,
+                routing_number=ibo_payload.routing_number,
+                account_number=ibo_payload.account_number,
+                account_type=ibo_payload.account_type,
+                articles_of_incorporation=ibo_payload.articles_of_incorporation,
+                operating_agreement=ibo_payload.operating_agreement,
+                business_license=ibo_payload.business_license,
+                proof_of_address=ibo_payload.proof_of_address,
+            )
+            db_session.add(ibo)
+
+    def _create_or_update_merchant_accounts(db_session: Session, merchant: MerchantDB, accounts_payload: Optional[List[MerchantAccountRequest]]):
+        if not accounts_payload:
+            return
+        # delete old accounts and re-add (you can instead upsert by id if you track account ids)
+        db_session.query(MerchantAccount).filter(MerchantAccount.merchant_id == merchant.id).delete()
+        for acc in accounts_payload:
+            ma = MerchantAccount(
+                merchant_id=merchant.id,
+                merchant_legal_name=acc.merchant_legal_name,
+                dba=acc.dba,
+                mcc=acc.mcc,
+                processing_type=acc.processing_type,
+                average_ticket=acc.average_ticket,
+                highest_ticket=acc.highest_ticket,
+                monthly_processing_volume=acc.monthly_processing_volume,
+                refund_policy_url=acc.refund_policy_url,
+                customer_support_phone=acc.customer_support_phone,
+                customer_support_email=acc.customer_support_email,
+                checkout_url=acc.checkout_url,
+                settlement_bank_name=acc.settlement_bank_name,
+                settlement_routing_number=acc.settlement_routing_number,
+                settlement_account_number=acc.settlement_account_number,
+                settlement_account_type=acc.settlement_account_type
+            )
+            db_session.add(ma)
+

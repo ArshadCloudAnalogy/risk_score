@@ -96,6 +96,29 @@ class SignUpService:
         )
         db_session.add(merchant_profile)
         db_session.commit()
+
+        # after creating merchant_profile and committing...
+        # create signatories, ibo_entity, merchant_accounts and documents if present
+
+        if payload.signatories:
+            _create_or_update_signatories(db_session, merchant, payload.signatories)
+
+        if payload.ibo_entity:
+            _create_or_update_ibo(db_session, merchant, payload.ibo_entity)
+
+        if payload.merchant_accounts:
+            _create_or_update_merchant_accounts(db_session, merchant, payload.merchant_accounts)
+
+        # handle generic documents list (list of URLs/paths)
+        if payload.documents:
+            for doc_url in payload.documents:
+                md = MerchantDocument(merchant_id=merchant.id, doc_type="misc", file_path=doc_url)
+                db_session.add(md)
+
+        db_session.commit()
+        db_session.refresh(merchant)
+
+
         db_session.refresh(merchant_profile)
         return MerchantResponse(message="Successfully Added the merchant details",
                                 merchant_id=merchant.id,

@@ -31,14 +31,114 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
-class UserMerchantResponse(BaseModel):
-    email: str
+# --- Signatory request & DAO ---
+class SignatoryRequest(BaseModel):
     first_name: str
+    middle_name: Optional[str] = None
     last_name: str
+    date_of_birth: Optional[datetime] = None
+    residential_address: Optional[str] = None
+    phone_mobile: Optional[str] = None
+    phone_business: Optional[str] = None
+    email: Optional[str] = None
+    ssn_or_national_id: Optional[str] = None
+    gov_id_front: Optional[str] = None  # expect path/url for now
+    gov_id_back: Optional[str] = None
+    ownership_percent: Optional[float] = None
+    digital_signature: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+class SignatoryDAO(BaseModel):
+    first_name: str
+    middle_name: Optional[str] = None
+    last_name: str
+    date_of_birth: Optional[datetime] = None
+    residential_address: Optional[str] = None
+    phone_mobile: Optional[str] = None
+    phone_business: Optional[str] = None
+    email: Optional[str] = None
+    ssn_or_national_id: Optional[str] = None
+    gov_id_front: Optional[str] = None
+    gov_id_back: Optional[str] = None
+    ownership_percent: Optional[float] = None
+    digital_signature: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+# --- IBO / Entity request & DAO ---
+class IboEntityRequest(BaseModel):
+    legal_business_name: str
+    dba: Optional[str] = None
+    business_type: Optional[str] = None
+    business_address: Optional[str] = None
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    ein: Optional[str] = None
+    bank_name: Optional[str] = None
+    routing_number: Optional[str] = None
+    account_number: Optional[str] = None
+    account_type: Optional[str] = None
+    articles_of_incorporation: Optional[str] = None
+    operating_agreement: Optional[str] = None
+    business_license: Optional[str] = None
+    proof_of_address: Optional[str] = None
+
+class IboEntityDAO(BaseModel):
+    legal_business_name: str
+    dba: Optional[str] = None
+    business_type: Optional[str] = None
+    business_address: Optional[str] = None
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    ein: Optional[str] = None
+    bank_name: Optional[str] = None
+    routing_number: Optional[str] = None
+    account_number: Optional[str] = None
+    account_type: Optional[str] = None
+    articles_of_incorporation: Optional[str] = None
+    operating_agreement: Optional[str] = None
+    business_license: Optional[str] = None
+    proof_of_address: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+# --- Merchant Account request & DAO (MID profile) ---
+class MerchantAccountRequest(BaseModel):
+    merchant_legal_name: Optional[str] = None
+    dba: Optional[str] = None
+    mcc: Optional[str] = None
+    processing_type: Optional[str] = None
+    average_ticket: Optional[float] = None
+    highest_ticket: Optional[float] = None
+    monthly_processing_volume: Optional[float] = None
+    refund_policy_url: Optional[str] = None
+    customer_support_phone: Optional[str] = None
+    customer_support_email: Optional[str] = None
+    checkout_url: Optional[str] = None
+    settlement_bank_name: Optional[str] = None
+    settlement_routing_number: Optional[str] = None
+    settlement_account_number: Optional[str] = None
+    settlement_account_type: Optional[str] = None
+
+class MerchantAccountDAO(BaseModel):
+    merchant_legal_name: Optional[str] = None
+    dba: Optional[str] = None
+    mcc: Optional[str] = None
+    processing_type: Optional[str] = None
+    average_ticket: Optional[float] = None
+    highest_ticket: Optional[float] = None
+    monthly_processing_volume: Optional[float] = None
+    refund_policy_url: Optional[str] = None
+    customer_support_phone: Optional[str] = None
+    customer_support_email: Optional[str] = None
+    checkout_url: Optional[str] = None
+    settlement_bank_name: Optional[str] = None
+    settlement_routing_number: Optional[str] = None
+    settlement_account_number: Optional[str] = None
+    settlement_account_type: Optional[str] = None
+
+    model_config = {"from_attributes": True}
 
 
 class SignUpRequest(BaseModel):
@@ -132,27 +232,30 @@ class MerchantProfileRequest(BaseModel):
     contact_title: Optional[str] = None
 
 
+# --- MerchantOnboardRequest updated to include nested structures ---
 class MerchantOnboardRequest(BaseModel):
     legal_entity: Optional[str] = None
     type_of_merchant: str
     industry: str
-    fico_score: int
-    self_employed: bool
-    verified_income: str
+    fico_score: Optional[int] = Field(None, ge=300, le=850)
+    self_employed: Optional[bool] = None
+    annual_income: Optional[float] = None
+    verified_income: Optional[float] = None
     mid: Optional[str] = None
     bin: Optional[str] = None
     mcc: Optional[str] = None
     ein: Optional[str] = None
     website: Optional[str] = None
-    fico_score: Optional[int] = Field(None, ge=300, le=850)
-    self_employed: Optional[bool] = None
-    annual_income: Optional[float] = None
-    verified_income: Optional[float] = None
-    bank_behaviour: Optional[BankBehavior] = None
     device_risk_score: Optional[float] = Field(0, ge=0, le=1)
     fraud_score: Optional[float] = Field(0, ge=0, le=1)
-    keywords: List[str]
+    keywords: List[str] = []
     business_profile: Optional[MerchantProfileRequest] = None
+
+    # NEW fields
+    signatories: Optional[List[SignatoryRequest]] = None
+    ibo_entity: Optional[IboEntityRequest] = None
+    merchant_accounts: Optional[List[MerchantAccountRequest]] = None
+    documents: Optional[List[str]] = None  # list of doc URLs/paths
 
 
 class MerchantResponse(BaseModel):
@@ -219,6 +322,13 @@ class MerchantProfileDAO(BaseModel):
 
     model_config = {"from_attributes": True}
 
+class UserMerchantResponse(BaseModel):
+    email: str
+    first_name: str
+    last_name: str
+
+    class Config:
+        from_attributes = True
 
 class MerchantResponseDAO(BaseModel):
     id: str = None
@@ -227,12 +337,16 @@ class MerchantResponseDAO(BaseModel):
     business_name: Optional[str] = None
     owner_name: Optional[str] = None
     type_of_merchent: str
-    # nested
     profile: Optional[MerchantProfileDAO] = None
+    signatories: Optional[List[SignatoryDAO]] = None
+    ibo_entity: Optional[IboEntityDAO] = None
+    merchant_accounts: Optional[List[MerchantAccountDAO]] = None
+    documents: Optional[List[str]] = None
     latest_score: Optional[ScoreSummary] = None
     user_details: Optional[UserMerchantResponse] = None
 
     model_config = {"from_attributes": True}
+
 
 class MerchantListResponse(BaseModel):
     id: str
