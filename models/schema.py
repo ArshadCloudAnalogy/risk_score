@@ -1,13 +1,14 @@
 from dataclasses import field
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import List, Optional, Any
 from datetime import datetime
 
 
 class APIResponse(BaseModel):
     message: str
-    status: str 
+    status: str
     data: Optional[Any] = None
+
 
 class ProfessionalDetailsResponse(BaseModel):
     company: Optional[str] = None
@@ -17,6 +18,7 @@ class ProfessionalDetailsResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class UserResponse(BaseModel):
     id: str
@@ -28,6 +30,7 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     professional_details: Optional[ProfessionalDetailsResponse] = None
+
     class Config:
         from_attributes = True
 
@@ -65,7 +68,6 @@ class SignInRequest(BaseModel):
 class SignInResponse(BaseModel):
     message: str
     token: str
-
 
 
 class ForgotPasswordRequest(BaseModel):
@@ -234,6 +236,7 @@ class MerchantResponseDAO(BaseModel):
 
     model_config = {"from_attributes": True}
 
+
 class MerchantListResponse(BaseModel):
     id: str
     name: str
@@ -249,3 +252,52 @@ class MerchantListResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+###########################################
+# Product
+###########################################
+
+class ProductRequestDAO(BaseModel):
+    name: str
+    description: str
+
+
+class ProductResponseDAO(BaseModel):
+    id: str
+    name: str
+    description: str
+
+    class Config:
+        from_attributes = True
+
+
+###########################################
+# Plans
+###########################################
+
+class PlanRequestDAO(BaseModel):
+    name: str
+    description: str
+    minimum_selected: str
+    no_of_items: str
+    is_free: bool = False
+    product_ids: List[str]
+    price_m: Optional[str] = None
+    price_y: Optional[str] = None
+    duration: Optional[Any] = None
+    recommended: bool = False
+
+    @validator("product_ids", pre=True, always=True)
+    def validate_products(cls, product_ids, values):
+        no_of_items = values.get("no_of_items")
+        if no_of_items is not None:
+            try:
+                no_of_items_int = int(no_of_items)
+            except ValueError:
+                raise ValueError("no_of_items must be integer")
+
+            if no_of_items_int != len(product_ids):
+                raise ValueError(
+                    f"the number of items ({no_of_items_int}) must match the length of products selected length {len(product_ids)}")
+        return product_ids

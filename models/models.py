@@ -2,7 +2,8 @@ from enum import Enum
 
 from sqlalchemy import (
     Column, String, Integer,
-    Float, DateTime, ForeignKey, Text)
+    Float, DateTime, ForeignKey, Text, Table, Boolean)
+from sqlalchemy.dialects.postgresql import TEXT
 from sqlalchemy.orm import relationship
 from connections.db_connection import Base
 from datetime import datetime
@@ -77,6 +78,7 @@ class WebhookLog(Base):
     # Relationship back to Merchant
     merchant = relationship("MerchantDB", back_populates="webhooks")
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -92,11 +94,12 @@ class User(Base):
     location = Column(String, nullable=True)
     profile_image = Column(String, nullable=True)
     role = Column(String, nullable=False, default=Role.USER.value)
-    created_by = Column(String, ForeignKey("users.id"), nullable=True)   # <-- NEW FIELD
+    created_by = Column(String, ForeignKey("users.id"), nullable=True)  # <-- NEW FIELD
     created_at = Column(DateTime, default=datetime.utcnow)
     update_at = Column(DateTime, default=datetime.utcnow)
 
     merchant = relationship("MerchantDB", back_populates="user", cascade="all, delete-orphan")
+
 
 class Chargeback(Base):
     __tablename__ = "chargebacks"
@@ -185,3 +188,40 @@ class Signature(Base):
 
     # Relationship back to Merchant
     merchant = relationship("MerchantDB", back_populates="signatures")
+
+
+plan_products = Table("plan_products", Base.metadata,
+                      Column("plan_id", String(50), ForeignKey("plans.id"), primary_key=True),
+                      Column("product_id", String(50), ForeignKey("products.id"), primary_key=True)
+                      )
+
+
+class Product(Base):
+    __tablename__ = "products"
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
+
+    name = Column(String(20), nullable=False)
+    description = Column(TEXT, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    update_at = Column(DateTime, default=datetime.utcnow)
+
+    plans = relationship("Plan", secondary=plan_products, back_populates="products")
+
+
+class Plan(Base):
+    __tablename__ = "plans"
+
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
+    name = Column(String(20), nullable=False)
+    description = Column(TEXT, nullable=True)
+    minimum_selected = Column(String(5), nullable=False)
+    price_m = Column(String(20), nullable=True)
+    price_y = Column(String(20), nullable=True)
+    no_of_items = Column(String(20), nullable=False)
+    is_free = Column(Boolean, nullable=False, default=False)
+    duration = Column(DateTime, nullable=True)
+    recommended = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    update_at = Column(DateTime, default=datetime.utcnow)
+
+    products = relationship("Product", secondary=plan_products, back_populates="plans")
