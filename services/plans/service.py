@@ -19,7 +19,6 @@ class PlanService:
 
     @staticmethod
     async def build(payload: PlanRequestDAO):
-        print(PlanRequestDAO(**payload.dict()))
         return PlanRequestDAO(**payload.dict())
 
     @staticmethod

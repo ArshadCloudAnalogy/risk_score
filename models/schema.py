@@ -301,3 +301,26 @@ class PlanRequestDAO(BaseModel):
                 raise ValueError(
                     f"the number of items ({no_of_items_int}) must match the length of products selected length {len(product_ids)}")
         return product_ids
+
+
+###########################################
+# Gateways
+###########################################
+
+class GatewayRequestDAO(BaseModel):
+    name: str
+    api_key: str
+    publishable_key: str
+    webhook: str
+
+
+class GatewayResponseDAO(BaseModel):
+    id: str
+    name: str
+    api_key: str
+    publishable_key: str
+    webhook: str
+    status: bool
+
+    class Config:
+        from_attributes = True
