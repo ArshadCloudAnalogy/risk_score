@@ -225,3 +225,17 @@ class Plan(Base):
     update_at = Column(DateTime, default=datetime.utcnow)
 
     products = relationship("Product", secondary=plan_products, back_populates="plans")
+
+
+class PaymentGateway(Base):
+    __tablename__ = "payment_gateways"
+
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
+    name = Column(String(15), nullable=False)
+    api_key = Column(TEXT, nullable=False)
+    publishable_key = Column(TEXT, nullable=False)
+    webhook = Column(String(250), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), index=True, nullable=False)
+    status = Column(Boolean, default=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
