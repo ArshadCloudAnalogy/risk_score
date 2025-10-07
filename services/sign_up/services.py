@@ -1,5 +1,5 @@
 import json
-
+import stripe
 from fastapi import HTTPException
 from passlib.hash import bcrypt
 from sqlalchemy.orm import Session
@@ -13,6 +13,7 @@ from models.schema import (
     SignUpResponse,
 )
 from services.calculation.services import Calculation
+from services.gateways.services import GatewayService
 
 
 class SignUpService:
@@ -65,7 +66,8 @@ class SignUpService:
 
         result = Calculation.combine_gates(g1, g2, g3, g4, ind_pts, ind_tags)
 
-        result["limit_suggestion"] = "$3,000" if result["tier"] == "Warm" else "$5,000" if result["tier"] == "Hot" else "$0"
+        result["limit_suggestion"] = "$3,000" if result["tier"] == "Warm" else "$5,000" if result[
+                                                                                               "tier"] == "Hot" else "$0"
         db_session.add(merchant)
         db_session.commit()
         db_session.refresh(merchant)
@@ -97,6 +99,11 @@ class SignUpService:
         db_session.add(merchant_profile)
         db_session.commit()
         db_session.refresh(merchant_profile)
+
+        gateway = GatewayService.get(db_session)
+        stripe.api_key = gateway.api_key
+        stripe.Customer.create(email=user.email, name=user.first_name + " " + user.last_name)
+
         return MerchantResponse(message="Successfully Added the merchant details",
                                 merchant_id=merchant.id,
                                 merchant_profile=merchant_profile.id)
@@ -129,7 +136,7 @@ class SignUpService:
             email=payload.email,
             password=hashed_password,
             role="admin",
-            created_by=user.id   # <-- track creator
+            created_by=user.id  # <-- track creator
         )
         db_session.add(new_user)
         db_session.commit()
