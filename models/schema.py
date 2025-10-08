@@ -324,3 +324,24 @@ class GatewayResponseDAO(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+###########################################
+# Offers
+###########################################
+
+class OfferRequestDAO(BaseModel):
+    offer_name: str
+    offer_starts: datetime
+    offer_ends: datetime
+    discount_percent: str
+    plan_id: str
+
+
+class OfferRequestModelDAO(BaseModel):
+    coupon_id: str
+    offer_name: str
+    offer_starts: datetime
+    offer_ends: datetime
+    discount_percent: str
+    plan_id: str

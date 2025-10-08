@@ -225,6 +225,7 @@ class Plan(Base):
     update_at = Column(DateTime, default=datetime.utcnow)
 
     products = relationship("Product", secondary=plan_products, back_populates="plans")
+    discount = relationship("Discount", back_populates="plans")
 
 
 class PaymentGateway(Base):
@@ -239,3 +240,26 @@ class PaymentGateway(Base):
     status = Column(Boolean, default=False)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Offer(Base):
+    __tablename__ = "offers"
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
+    coupon_id = Column(String(50), nullable=True)
+    offer_name = Column(String(10), nullable=False)
+    offer_starts = Column(DateTime, nullable=False)
+    offer_ends = Column(DateTime, nullable=False)
+    discount_percent = Column(String(10), nullable=False)
+    is_applied = Column(Boolean, default=False)
+    status = Column(Boolean, default=True)
+    plan_id = Column(String, ForeignKey("plans.id"), nullable=False)
+
+
+class Discount(Base):
+    __tablename__ = "discount"
+
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
+    plan_id = Column(String, ForeignKey("plans.id"), nullable=False)
+    product_id = Column(String, ForeignKey("products.id"), nullable=False)
+
+    plans = relationship("Plan", back_populates="discount")
