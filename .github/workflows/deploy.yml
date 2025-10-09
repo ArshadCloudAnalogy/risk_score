@@ -34,10 +34,10 @@ jobs:
         id: build-image
         run: |
           echo "Building Docker image..."
-          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:${{ github.sha }} .
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:latest .
 
           echo "Tagging image for ECR..."
-          docker tag risk_core_be:latest ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:${{ github.sha }}
+          docker tag risk_core_be:latest ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:latest
 
           echo "Pushing image to ECR..."
-          docker push ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:latest
