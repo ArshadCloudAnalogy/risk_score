@@ -8,6 +8,7 @@ from routers.profile.routers import router as profile_routers
 from routers.plans.routers import router as plans_routers
 from routers.products.routers import router as products_routers
 from routers.gatways.routers import router as gateways_routers
+from routers.offers.routers import router as offers_routers
 
 api_router = APIRouter()
 api_router.include_router(signup_router)
@@ -18,6 +19,7 @@ api_router.include_router(profile_routers)
 api_router.include_router(plans_routers)
 api_router.include_router(products_routers)
 api_router.include_router(gateways_routers)
+api_router.include_router(offers_routers)
 
 # merchants
 api_router.include_router(merchant_router)
