@@ -202,6 +202,8 @@ class Product(Base):
 
     name = Column(String(20), nullable=False)
     description = Column(TEXT, nullable=True)
+    price_m = Column(String(10), nullable=False)
+    price_y = Column(String(10), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     update_at = Column(DateTime, default=datetime.utcnow)
 
@@ -214,18 +216,13 @@ class Plan(Base):
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
     name = Column(String(20), nullable=False)
     description = Column(TEXT, nullable=True)
-    minimum_selected = Column(String(5), nullable=False)
-    price_m = Column(String(20), nullable=True)
-    price_y = Column(String(20), nullable=True)
     no_of_items = Column(String(20), nullable=False)
     is_free = Column(Boolean, nullable=False, default=False)
-    duration = Column(DateTime, nullable=True)
     recommended = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     update_at = Column(DateTime, default=datetime.utcnow)
 
     products = relationship("Product", secondary=plan_products, back_populates="plans")
-    discount = relationship("Discount", back_populates="plans")
 
 
 class PaymentGateway(Base):
@@ -246,13 +243,15 @@ class Offer(Base):
     __tablename__ = "offers"
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
     coupon_id = Column(String(50), nullable=True)
+    offer_description = Column(String(255), nullable=True)
     offer_name = Column(String(10), nullable=False)
     offer_starts = Column(DateTime, nullable=False)
     offer_ends = Column(DateTime, nullable=False)
     discount_percent = Column(String(10), nullable=False)
     is_applied = Column(Boolean, default=False)
     status = Column(Boolean, default=True)
-    plan_id = Column(String, ForeignKey("plans.id"), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class Discount(Base):
@@ -260,6 +259,10 @@ class Discount(Base):
 
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()))
     plan_id = Column(String, ForeignKey("plans.id"), nullable=False)
-    product_id = Column(String, ForeignKey("products.id"), nullable=False)
+    products = Column(String, ForeignKey("products.id"), nullable=False)
+    offer_id = Column(String, ForeignKey("offers.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    current_plan = Column(Boolean, default=True)
 
-    plans = relationship("Plan", back_populates="discount")
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)

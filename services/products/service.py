@@ -10,7 +10,7 @@ class ProductService:
 
     @staticmethod
     async def create(product: ProductRequestDAO, db_session: Session):
-        products = Product(name=product.name, description=product.description)
+        products = Product(**product.dict())
         db_session.add(products)
         db_session.commit()
         return products
