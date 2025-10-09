@@ -2,11 +2,30 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from models.models import User
 from models.models import Offer
-from uuid import uuid4
 from models.schema import OfferRequestDAO, OfferRequestModelDAO
+import random
+import string
+from datetime import datetime
 
 
 class OfferService:
+
+    @staticmethod
+    def generate_coupon_id(prefix: str = "F") -> str:
+        """
+        Generate a random coupon ID in the format: AAAAA-12345-F2025
+
+        Args:
+            prefix (str): A single-letter prefix before the year (default: 'F')
+
+        Returns:
+            str: The generated coupon ID.
+        """
+        letters = ''.join(random.choices(string.ascii_uppercase, k=5))
+        numbers = ''.join(random.choices(string.digits, k=5))
+        year = datetime.now().year
+        coupon_id = f"{letters}-{numbers}-{prefix}{year}"
+        return coupon_id
 
     @staticmethod
     async def build_and_create(offer: OfferRequestDAO, user: User, db_session: Session):
@@ -16,10 +35,10 @@ class OfferService:
         dao = OfferRequestModelDAO(
             offer_name=offer.offer_name,
             offer_ends=offer.offer_ends,
+            offer_description=offer.offer_description,
             offer_starts=offer.offer_starts,
             discount_percent=offer.discount_percent,
-            plan_id=offer.plan_id,
-            coupon_id=str(uuid4()))
+            coupon_id=OfferService.generate_coupon_id())
         create_offer = await OfferService.create(offer=dao, db_session=db_session)
         if not create_offer:
             raise HTTPException(status_code=404, detail="Error while adding new offer")

@@ -261,12 +261,16 @@ class MerchantListResponse(BaseModel):
 class ProductRequestDAO(BaseModel):
     name: str
     description: str
+    price_m: str
+    price_y: str
 
 
 class ProductResponseDAO(BaseModel):
     id: str
     name: str
     description: str
+    price_m: str
+    price_y: str
 
     class Config:
         from_attributes = True
@@ -279,28 +283,9 @@ class ProductResponseDAO(BaseModel):
 class PlanRequestDAO(BaseModel):
     name: str
     description: str
-    minimum_selected: str
     no_of_items: str
     is_free: bool = False
-    product_ids: List[str]
-    price_m: Optional[str] = None
-    price_y: Optional[str] = None
-    duration: Optional[Any] = None
     recommended: bool = False
-
-    @validator("product_ids", pre=True, always=True)
-    def validate_products(cls, product_ids, values):
-        no_of_items = values.get("no_of_items")
-        if no_of_items is not None:
-            try:
-                no_of_items_int = int(no_of_items)
-            except ValueError:
-                raise ValueError("no_of_items must be integer")
-
-            if no_of_items_int != len(product_ids):
-                raise ValueError(
-                    f"the number of items ({no_of_items_int}) must match the length of products selected length {len(product_ids)}")
-        return product_ids
 
 
 ###########################################
@@ -333,15 +318,15 @@ class GatewayResponseDAO(BaseModel):
 class OfferRequestDAO(BaseModel):
     offer_name: str = Field(..., max_length=10)
     offer_starts: datetime
+    offer_description: str
     offer_ends: datetime
     discount_percent: str
-    plan_id: str
 
 
 class OfferRequestModelDAO(BaseModel):
     coupon_id: str
     offer_name: str
+    offer_description: str
     offer_starts: datetime
     offer_ends: datetime
     discount_percent: str
-    plan_id: str
