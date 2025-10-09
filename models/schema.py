@@ -331,7 +331,7 @@ class GatewayResponseDAO(BaseModel):
 ###########################################
 
 class OfferRequestDAO(BaseModel):
-    offer_name: str
+    offer_name: str = Field(..., max_length=10)
     offer_starts: datetime
     offer_ends: datetime
     discount_percent: str
