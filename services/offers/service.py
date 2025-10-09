@@ -19,7 +19,7 @@ class OfferService:
             offer_starts=offer.offer_starts,
             discount_percent=offer.discount_percent,
             plan_id=offer.plan_id,
-            coupon_id=str(uuid4))
+            coupon_id=str(uuid4()))
         create_offer = await OfferService.create(offer=dao, db_session=db_session)
         if not create_offer:
             raise HTTPException(status_code=404, detail="Error while adding new offer")
