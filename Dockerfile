@@ -2,7 +2,6 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-RUN yum update -y && yum install -y git openssh;
 
 # Install Python dependencies
 WORKDIR /var/task
