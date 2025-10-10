@@ -42,7 +42,11 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/api/v1/health")
 def root():
-    return {"message": f"Welcome to RiskCore API :{os.getenv('POSTGRES_HOST')}"}
+    return {"message": f"Welcome to RiskCore API",
+            "POSTGRES_USER": os.getenv('POSTGRES_USER'),
+            "POSTGRES_PASSWORD": os.getenv('POSTGRES_PASSWORD'),
+            "POSTGRES_DB": os.getenv('POSTGRES_DB'),
+            "POSTGRES_HOST": os.getenv('POSTGRES_HOST')}
 
 
 # Routers
