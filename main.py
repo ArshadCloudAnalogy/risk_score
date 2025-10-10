@@ -34,7 +34,7 @@ async def log_requests(request: Request, call_next):
     return response
 
 
-@app.get("/api/v1/")
+@app.get("/api/v1/health")
 def root():
     return {"message": "Welcome to RiskCore API"}
 
