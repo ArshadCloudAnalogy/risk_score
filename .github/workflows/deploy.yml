@@ -44,3 +44,8 @@ jobs:
 
           echo "Pushing image to ECR..."
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY }}:latest
+
+      - name: Update Lambda to new image
+        run: |
+          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/risk_core_be:latest"
+          aws lambda update-function-code --function-name risk_core_be --image-uri "${IMAGE_URI}"
