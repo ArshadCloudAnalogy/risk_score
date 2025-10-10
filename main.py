@@ -6,7 +6,7 @@ import logging
 from mangum import Mangum
 
 app = FastAPI(title="RiskCore API", version="1.0.0",
-              docs_url="/swagger/_docs")
+              docs_url="/api/v1/swagger/_docs")
 
 # CORS Middleware
 app.add_middleware(
