@@ -11,8 +11,7 @@ app = FastAPI(
     title="RiskCore API",
     version="1.0.0",
     docs_url="/api/v1/docs",  # <-- move docs here
-    redoc_url=None,
-    openapi_url="/api/v1/openapi.json",  # <-- make this explicit
+    redoc_url=None
 )
 
 # CORS Middleware
