@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 from routers import api_router
@@ -41,7 +43,7 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/api/v1/health")
 def root():
-    return {"message": "Welcome to RiskCore API"}
+    return {"message": f"Welcome to RiskCore API :{os.getenv('POSTGRES_HOST')}"}
 
 
 # Routers
